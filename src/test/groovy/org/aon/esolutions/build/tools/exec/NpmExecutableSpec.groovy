@@ -91,7 +91,16 @@ public class NpmExecutableSpec extends Specification {
 		
 		then:
 		globalPackages;
+		globalPackages[0].path
+	}
+	
+	def "find node"() {
+		when:
+		NodeJSExecutable nodeJs = new NodeJSExecutable();
 		
+		then:
+		nodeJs
+		nodeJs.getExecutableFile().getParentFile().isDirectory()
 	}
 
 }

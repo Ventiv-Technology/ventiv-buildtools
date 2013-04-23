@@ -40,6 +40,9 @@ public class Executable {
 	 * @param sdtOutCallback Callback for Standard error, called once for each line
 	 */
 	public int run(String[] arguments, Closure stdInCallback = null, Closure sdtOutCallback = null) {
+		standardOut.setLength(0);
+		standardError.setLength(0);
+		
 		def arugmentsWithFile = [executableFile.getAbsolutePath()]
 		arugmentsWithFile.addAll(arguments)
 		def proc = arugmentsWithFile.execute()

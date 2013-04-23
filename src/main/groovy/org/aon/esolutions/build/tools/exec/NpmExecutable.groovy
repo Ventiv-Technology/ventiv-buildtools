@@ -15,7 +15,11 @@
  */
 package org.aon.esolutions.build.tools.exec;
 
+import groovy.json.JsonSlurper;
+
 public class NpmExecutable extends Executable {
+	
+	private JsonSlurper jsonSlurper = new JsonSlurper(); 
 	
 	public NpmExecutable() {
 		super(ExecutableFinder.findExecutable("npm"));
@@ -32,12 +36,9 @@ public class NpmExecutable extends Executable {
 	public List<NpmPackage> listPackages(boolean global = false) {
 		List<NpmPackage> answer = [];
 		
-		run(getArguments(global, "ls")) {
-			def matcher = (it =~ /.* (.*)@(.*)/)
-			if (matcher.matches()) {
-				answer.add(new NpmPackage([packageName: matcher[0][1], versionNumber: matcher[0][2]]))
-			}
-		}
+		run(getArguments(global, "ll"));
+		def lsOutput = jsonSlurper.parseText(getStandardOut());
+		addDependenciesToList(answer, lsOutput.dependencies)
 		
 		return answer;
 	}
@@ -67,19 +68,36 @@ public class NpmExecutable extends Executable {
 	}
 	
 	private String[] getArguments(boolean global, String...args) {
-		List<String> arguments = [];
+		List<String> arguments = ["-json"];
 		if (global)
-			arguments = ["-g"]
+			arguments = ["-json", "-g"]
 		
 		arguments.addAll(args);
 		
 		return arguments;
 	}	
 	
+	private void addDependenciesToList(List<NpmPackage> collector, def dependencyMap) {
+		dependencyMap?.each { packageName, packageObj ->
+			NpmPackage npmPackage = new NpmPackage();
+			collector << npmPackage;
+			
+			npmPackage.packageName = packageObj.name;
+			npmPackage.versionNumber = packageObj.version;
+			if (packageObj.path)
+				npmPackage.path = new File(packageObj.path);
+			
+			addDependenciesToList(collector, packageObj.dependencies)						
+		}
+	}
+	
 	public static class NpmPackage {
 		public String packageName;
 		public String versionNumber;
+		public File path;
 	}
+	
+	
 	
 
 }
