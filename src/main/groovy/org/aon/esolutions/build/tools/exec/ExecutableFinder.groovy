@@ -50,15 +50,15 @@ public class ExecutableFinder {
 		for (String pathDir : pathDirs)
 		{
 			File file = new File(pathDir, executableName);
+			// First, try our extensions
+			for (String anExtension : OSUtil.getExecutableExtensions()) {
+				file = new File(pathDir, executableName + anExtension);
+				if (file.isFile())
+					return file;
+			}
+			
 			if (file.isFile())
 				return file;
-			else {						// Try extensions
-				for (String anExtension : OSUtil.getExecutableExtensions()) {
-					file = new File(pathDir, executableName + anExtension);
-					if (file.isFile())
-						return file;
-				}
-			}
 		}
 		return fullyQualifiedExecutable;
 	}
