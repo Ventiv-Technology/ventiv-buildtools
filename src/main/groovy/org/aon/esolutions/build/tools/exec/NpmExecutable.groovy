@@ -16,6 +16,7 @@
 package org.aon.esolutions.build.tools.exec;
 
 import groovy.json.JsonSlurper;
+import groovy.util.logging.Commons;
 
 public class NpmExecutable extends Executable {
 	
@@ -36,9 +37,19 @@ public class NpmExecutable extends Executable {
 	public List<NpmPackage> listPackages(boolean global = false) {
 		List<NpmPackage> answer = [];
 		
-		run(getArguments(global, "ll"));
+		run(getArguments(global, "ls"));		
 		def lsOutput = jsonSlurper.parseText(getStandardOut());
-		addDependenciesToList(answer, lsOutput.dependencies)
+		
+		lsOutput.dependencies.each { packageName, packageObj ->
+			NpmPackage npmPackage = new NpmPackage();
+			answer << npmPackage
+			
+			npmPackage.packageName = packageName;
+			npmPackage.versionNumber = packageObj.version;
+			
+			if (packageObj.path)
+				npmPackage.path = new File(packageObj.path);
+		}
 		
 		return answer;
 	}
@@ -52,6 +63,9 @@ public class NpmExecutable extends Executable {
 	}
 	
 	public boolean installPackage(String packageName, boolean global = false) {
+		if (getInstalledPackageVersion(packageName, global) != null)
+			return false;
+			
 		try {
 			return run(getArguments(global, "install", packageName)) == 0
 		} catch (Exception e) {
@@ -77,24 +91,35 @@ public class NpmExecutable extends Executable {
 		return arguments;
 	}	
 	
+	/**
+	 * Does a depth first search (iterative) to prevent a stack overflow.
+	 * 
+	 * @param collector
+	 * @param dependencyMap
+	 */
 	private void addDependenciesToList(List<NpmPackage> collector, def dependencyMap) {
-		dependencyMap?.each { packageName, packageObj ->
-			NpmPackage npmPackage = new NpmPackage();
-			collector << npmPackage;
-			
-			npmPackage.packageName = packageObj.name;
-			npmPackage.versionNumber = packageObj.version;
-			if (packageObj.path)
-				npmPackage.path = new File(packageObj.path);
-			
-			addDependenciesToList(collector, packageObj.dependencies)						
-		}
+			currentDependency?.each { packageName, packageObj ->
+				NpmPackage npmPackage = new NpmPackage();
+				collector << npmPackage;
+				
+				npmPackage.packageName = packageName;
+				npmPackage.versionNumber = packageObj.version;
+				if (packageObj.path)
+					npmPackage.path = new File(packageObj.path);
+					
+				queue.push(packageObj.dependencies);
+			}
 	}
 	
 	public static class NpmPackage {
 		public String packageName;
 		public String versionNumber;
 		public File path;
+		
+		@Override
+		public String toString() {
+			return "{packageName: $packageName, versionNumber: $versionNumber, path: $path}"
+		}
 	}
 	
 	

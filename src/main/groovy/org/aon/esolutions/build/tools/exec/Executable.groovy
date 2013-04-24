@@ -15,9 +15,12 @@
  */
 package org.aon.esolutions.build.tools.exec;
 
-import java.util.regex.Pattern
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 public class Executable {
+	
+	public static final Logger log = LoggerFactory.getLogger(Executable.class)
 	
 	private File executableFile = null;
 	private StringBuffer standardOut = new StringBuffer();
@@ -29,6 +32,10 @@ public class Executable {
 	
 	public Executable(Executable executable) {
 		executableFile = executable.getExecutableFile();
+	}
+	
+	public int run(List<String> arguments, Closure stdInCallback = null, Closure sdtOutCallback = null) {
+		return run(arguments as String[], stdInCallback, sdtOutCallback);
 	}
 	
 	/**
@@ -45,10 +52,17 @@ public class Executable {
 		
 		def arugmentsWithFile = [executableFile.getAbsolutePath()]
 		arugmentsWithFile.addAll(arguments)
+		
+		log.info("Executing Shell Command: $arugmentsWithFile")
 		def proc = arugmentsWithFile.execute()
 		
 		proc.consumeProcessOutput(standardOut, standardError);
 		proc.waitFor()
+		
+		if (log.isDebugEnabled()) {
+			log.debug("Shell standard out: $standardOut")
+			log.debug("Shell standard error: $standardError")
+		}		
 		
 		if (stdInCallback)
 			standardOut.eachLine(stdInCallback)
@@ -59,6 +73,9 @@ public class Executable {
 		if (proc.exitValue()!=0){
 			throw new RuntimeException("Error Executing $executableFile.  Return code ${proc.exitValue()}")
 		}
+		
+		if (log.isInfoEnabled())
+			log.info("Shell Command finished executing. Return code: ${proc.exitValue()}")
 		
 		return proc.exitValue();
 	}
@@ -97,6 +114,10 @@ public class Executable {
 	
 	public File getExecutableFile() {
 		return executableFile;
+	}
+	
+	public void setExecutableFile(File executableFile) {
+		this.executableFile = executableFile;
 	}
 	
 }

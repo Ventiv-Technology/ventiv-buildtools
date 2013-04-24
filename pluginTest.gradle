@@ -1,0 +1,23 @@
+buildscript {
+	dependencies {
+		classpath fileTree(dir: 'build/libs', include: '*.jar')
+	}
+}
+
+apply plugin: 'exec'
+
+nodeJsScripts {
+	karma {
+		scriptLocation = file("node_modules/karma/bin/karma")
+		standardOutLogLevel = "DEBUG"
+		standardErrorLogLevel = "ALWAYS"
+	}
+}
+
+task installKarmaFromNpm << {
+	npm.installPackage("karma")
+}
+
+task runKarma(dependsOn: installKarmaFromNpm) << { 
+	nodeJsScripts.karma.run("start", "adsf")
+}

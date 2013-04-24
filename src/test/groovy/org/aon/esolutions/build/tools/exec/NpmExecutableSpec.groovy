@@ -91,7 +91,6 @@ public class NpmExecutableSpec extends Specification {
 		
 		then:
 		globalPackages;
-		globalPackages[0].path
 	}
 	
 	def "find node"() {
