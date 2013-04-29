@@ -9,7 +9,7 @@ apply plugin: 'eclipse-wtp'
 apply plugin: 'license'
 
 group = 'org.aon.esolutions'
-version = '0.1.1'
+version = '0.1.5'
 
 repositories {
     mavenCentral()

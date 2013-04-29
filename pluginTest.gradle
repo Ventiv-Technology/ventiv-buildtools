@@ -21,3 +21,11 @@ task installKarmaFromNpm << {
 task runKarma(dependsOn: installKarmaFromNpm) << { 
 	nodeJsScripts.karma.run("start", "adsf")
 }
+
+task installPhantomJs << {
+	phantomJs.install file("$buildDir/phantomjs")
+	nodeJsScripts.karma.environmentVariables.put("PHANTOMJS_BIN", phantomJs.getExecutableFile());
+	
+	println phantomJs.getExecutableFile()
+	println nodeJsScripts.karma.environmentVariables
+}

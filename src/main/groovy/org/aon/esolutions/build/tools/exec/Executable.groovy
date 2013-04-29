@@ -25,13 +25,15 @@ public class Executable {
 	private File executableFile = null;
 	private StringBuffer standardOut = new StringBuffer();
 	private StringBuffer standardError = new StringBuffer();
+	private Map<String, String> environmentVariables = [:];
 
 	public Executable(File executableFile) {
 		this.executableFile = executableFile;
 	}
 	
 	public Executable(Executable executable) {
-		executableFile = executable.getExecutableFile();
+		if (executable)
+			executableFile = executable.getExecutableFile();
 	}
 	
 	public int run(List<String> arguments, Closure stdInCallback = null, Closure sdtOutCallback = null) {
@@ -53,8 +55,17 @@ public class Executable {
 		def arugmentsWithFile = [executableFile.getAbsolutePath()]
 		arugmentsWithFile.addAll(arguments)
 		
+		List<String> env = environmentVariables.collect { k, v -> "$k=$v" }
+		env += System.getenv().collect { k, v -> "$k=$v" }
+		
 		log.info("Executing Shell Command: $arugmentsWithFile")
-		def proc = arugmentsWithFile.execute()
+		log.info("Additional Environment Variables: $environmentVariables")
+		
+		def proc;		
+		if (environmentVariables)
+			proc = arugmentsWithFile.execute(env, new File("."));
+		else
+			proc = arugmentsWithFile.execute();
 		
 		proc.consumeProcessOutput(standardOut, standardError);
 		proc.waitFor()
@@ -102,6 +113,20 @@ public class Executable {
 		})	
 		
 		return foundMatch;	
+	}
+	
+	public void setEnvironmentVariable(String variableName, String variableValue) {
+		if (log.isDebugEnabled())
+			log.debug("Adding environment variable: $variableName = $variableValue")
+		
+		environmentVariables.put(variableName, variableValue);
+	}
+	
+	public void addEnvironmentVariables(Map<String, String> envVariables) {
+		if (log.isDebugEnabled())
+			log.debug("Adding environment variables: $envVariables")
+			
+		environmentVariables.putAll(envVariables);
 	}
 	
 	public String getStandardOut() {
