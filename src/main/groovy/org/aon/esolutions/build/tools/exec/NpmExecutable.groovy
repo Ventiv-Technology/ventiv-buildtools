@@ -37,7 +37,14 @@ public class NpmExecutable extends Executable {
 	public List<NpmPackage> listPackages(boolean global = false) {
 		List<NpmPackage> answer = [];
 		
-		run(getArguments(global, "ls"));		
+		// Get the path to the node modules - https://npmjs.org/doc/global.html (Node Modules)
+		run(getArguments(global, "prefix"));
+		def prefixPath = getStandardOut().trim();
+		File nodeModules = new File(prefixPath + "/lib/node_modules");
+		if (nodeModules.exists() == false)
+			nodeModules = new File(prefixPath + "/node_modules");				
+		
+		run(getArguments(global, "ls"));
 		def lsOutput = jsonSlurper.parseText(getStandardOut());
 		
 		lsOutput.dependencies.each { packageName, packageObj ->
@@ -47,8 +54,12 @@ public class NpmExecutable extends Executable {
 			npmPackage.packageName = packageName;
 			npmPackage.versionNumber = packageObj.version;
 			
-			if (packageObj.path)
-				npmPackage.path = new File(packageObj.path);
+			if (nodeModules.exists()) {
+				npmPackage.path = new File(nodeModules, "${packageName}/bin/${packageName}");
+				
+				if (npmPackage.path.exists() == false)
+					npmPackage.path = null;
+			}
 		}
 		
 		return answer;
@@ -119,6 +130,10 @@ public class NpmExecutable extends Executable {
 		@Override
 		public String toString() {
 			return "{packageName: $packageName, versionNumber: $versionNumber, path: $path}"
+		}
+		
+		public File getPath() {
+			return path;
 		}
 	}
 	

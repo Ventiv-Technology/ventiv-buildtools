@@ -21,6 +21,7 @@ import org.aon.esolutions.build.tools.exec.JavaExecutable
 import org.aon.esolutions.build.tools.exec.NodeJSExecutable
 import org.aon.esolutions.build.tools.exec.NpmExecutable
 import org.aon.esolutions.build.tools.exec.PhantomJSExecutable
+import org.aon.esolutions.build.tools.exec.NpmExecutable.NpmPackage;
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.slf4j.Logger
@@ -101,20 +102,36 @@ public class ExecPlugin implements Plugin<Project>  {
 		
 		public int run(String...scriptArguments) {
 			// Ensure that this is installed
-			String installedVersion = npm.getInstalledPackageVersion(name, global);
-			if (installedVersion == null || installedVersion.trim().length() == 0)
+			NpmPackage npmPackage = npm.listPackages(global).find { it.packageName == name };
+			if (npmPackage == null) {
 				npm.installPackage(name, global);
+				npmPackage = npm.listPackages(global).find { it.packageName == name };
+			}
 				
 			// Set the Environment Variables
 			nodeJs.addEnvironmentVariables(environmentVariables);
-				
-			// TODO: Automatically set scriptLocation based on NpmExecutable's package def (when it can read script location)
+			
+			File scriptToExecute = npmPackage.getPath();
+			if (this.scriptLocation && this.scriptLocation.exists())
+				scriptToExecute = this.scriptLocation;
+
+			// Final check to ensure we found the script location
+			if (scriptToExecute == null || scriptToExecute.exists() == false)
+				throw new RuntimeException("Unable to find executable for $name in: $scriptToExecute");
 				
 			// Run it			
 			if (scriptArguments == null || scriptArguments.length == 0)
-				nodeJs.runScript(scriptLocation, this.scriptArguments, stdOutLogger, stdErrLogger);
+				nodeJs.runScript(scriptToExecute, this.scriptArguments, stdOutLogger, stdErrLogger);
 			else
-				nodeJs.runScript(scriptLocation, scriptArguments, stdOutLogger, stdErrLogger);
+				nodeJs.runScript(scriptToExecute, scriptArguments, stdOutLogger, stdErrLogger);
+		}
+		
+		public String getStandardOut() {
+			return nodeJs.getStandardOut();
+		}
+		
+		public String getStandardError() {
+			return nodeJs.getStandardError();
 		}
 	}
 	

@@ -12,6 +12,10 @@ nodeJsScripts {
 		standardOutLogLevel = "DEBUG"
 		standardErrorLogLevel = "ALWAYS"
 	}
+	
+	bower {
+		global = true
+	}
 }
 
 task installKarmaFromNpm << {
@@ -19,7 +23,18 @@ task installKarmaFromNpm << {
 }
 
 task runKarma(dependsOn: installKarmaFromNpm) << { 
-	nodeJsScripts.karma.run("start", "adsf")
+	try {
+		nodeJsScripts.karma.run("start", "adsf")
+	} catch (def e) {
+		if (nodeJsScripts.karma.getStandardOut().trim().size() == 0)
+			throw new RuntimeException("No StdOut Captured")
+	}
+}
+
+task getBowerList << {
+	nodeJsScripts.bower.run("list", "--paths")
+	if (nodeJsScripts.bower.getStandardOut().trim().size() == 0)
+		throw new RuntimeException("Unable to get Bower List results")
 }
 
 task installPhantomJs << {
