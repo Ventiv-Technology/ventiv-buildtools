@@ -23,7 +23,7 @@ public class JavaExecutable extends Executable {
 	
 	public boolean isInstalled() {
 		try {	
-			return getExecutableFile().exists() && run([] as String[]) == 0
+			return getExecutableFile().exists() && run(["-version"] as String[]) == 0
 		} catch (Exception e) {
 			return false;
 		}
