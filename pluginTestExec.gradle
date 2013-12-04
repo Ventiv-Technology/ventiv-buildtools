@@ -18,6 +18,10 @@ nodeJsScripts {
 	}
 }
 
+executables {
+    java {}
+}
+
 task installKarmaFromNpm << {
 	npm.installPackage("karma")
 }
@@ -43,4 +47,16 @@ task installPhantomJs << {
 	
 	println phantomJs.getExecutableFile()
 	println nodeJsScripts.karma.environmentVariables
+}
+
+task getJavaVersion << {
+    // Example of hitting the java executable directly
+    java.run(["-version"], {
+        println "Std Out: $it"
+    }, {
+        println "Std Err: $it"
+    })
+
+    // Example of using special methods built into the java executable
+    println "Version: ${java.getVersion()}"
 }

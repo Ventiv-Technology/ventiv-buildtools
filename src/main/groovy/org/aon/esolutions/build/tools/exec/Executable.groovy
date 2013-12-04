@@ -36,8 +36,8 @@ public class Executable {
 			executableFile = executable.getExecutableFile();
 	}
 	
-	public int run(List<String> arguments, Closure stdInCallback = null, Closure sdtOutCallback = null) {
-		return run(arguments as String[], stdInCallback, sdtOutCallback);
+	public int run(List<String> arguments, Closure stdOutCallback = null, Closure sdtErrCallback = null) {
+		return run(arguments as String[], stdOutCallback, sdtErrCallback);
 	}
 	
 	/**
@@ -45,10 +45,10 @@ public class Executable {
 	 * for the Standard Output and Standard Error streams.  Will pass each line as the parameter
 	 * into the callback.
 	 * 
-	 * @param stdInCallback Callback for Standard In, called once for each line
-	 * @param sdtOutCallback Callback for Standard error, called once for each line
+	 * @param stdOutCallback Callback for Standard In, called once for each line
+	 * @param sdtErrCallback Callback for Standard error, called once for each line
 	 */
-	public int run(String[] arguments, Closure stdInCallback = null, Closure sdtOutCallback = null) {
+	public int run(String[] arguments, Closure stdOutCallback = null, Closure sdtErrCallback = null) {
 		standardOut.setLength(0);
 		standardError.setLength(0);
 		
@@ -75,11 +75,11 @@ public class Executable {
 			log.debug("Shell standard error: $standardError")
 		}		
 		
-		if (stdInCallback)
-			standardOut.eachLine(stdInCallback)
+		if (stdOutCallback)
+			standardOut.eachLine(stdOutCallback)
 			
-		if (sdtOutCallback)
-			standardError.eachLine(sdtOutCallback)
+		if (sdtErrCallback)
+			standardError.eachLine(sdtErrCallback)
 			
 		if (proc.exitValue()!=0){
 			throw new RuntimeException("Error Executing $executableFile.  Return code ${proc.exitValue()}")
