@@ -76,3 +76,30 @@ In the NodeJSScript, you can configure several things (all of which are OPTIONAL
 - environmentVariables - Map of variables to place in the running environment.
 - standardOutLogLevel - INFO, DEBUG, ALWAYS, or NONE.  Level to log the Standard output.  Defaults to NONE
 - standardErrorLogLevel - INFO, DEBUG, ALWAYS, or NONE.  Level to log the Standard error.  Defaults to NONE 
+
+## JaCoCo Results Plugin ##
+
+Enable this plugin by: `apply plugin: 'jacoco-results'`
+
+See examples in: `pluginTestJaCoCo.gradle` and `jacocoMultiprojectTest/build.gradle`
+
+NOTE: This plugin requires at least Gradle 1.6, as it includes the JaCoCo plugin.
+
+This plugin is to build on top of the JaCoCo plugin that gradle provides out of the box (currently incubating).  The point here is to fail the build if certain levels of coverage are not met.  This of course is done in a configurable manner, via the jacocoResults closure, for example:
+
+    jacocoResults {
+        aggregationLevel = "Project"
+        type = "Instruction"
+        threshold = 95
+    }
+
+The following are the properties (none required - all default):
+
+- aggregationLevel - What level do you want coverage aggregated up to?  Defaults to SubProject. Valid values are: 
+	- Project - All projects in the build.  Including the root project, as well as any subprojects.
+	- SubProject - At the sub-project level.  Only makes sense if doing multi-project builds in gradle, but will work the same as Project otherwise.
+	- Package - Java Package Level.  If any single package is below the threshold, build fails.
+	- Class - Java Class Level.  If any single class is below the threshold, build fails.
+	- Method - Java Method Level.  If any single method is below the threshold, build fails.
+- type - What Coverage type are you interested in?  Defaults to Line.  This is the list from JaCoCo: Class, Method, Complexity, Line, Branch, Instruction
+- threshold - What percentage coverage is required to pass the build.  Any coverage below this percentage will fail.
