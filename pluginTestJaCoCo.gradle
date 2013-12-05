@@ -21,7 +21,10 @@ dependencies {
 }
 
 jacocoResults {
-    aggregationLevel = "Project" // Project, SubProject, Package, Class, Method
+    aggregationLevel = "Package" // Project, SubProject, Package, Class, Method
     type = "Instruction"
     threshold = 80
+    excludes = [
+            "org.aon.esolutions.build.tools.util"
+    ]
 }

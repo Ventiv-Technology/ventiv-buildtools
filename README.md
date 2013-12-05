@@ -91,6 +91,9 @@ This plugin is to build on top of the JaCoCo plugin that gradle provides out of 
         aggregationLevel = "Project"
         type = "Instruction"
         threshold = 95
+		excludes = [
+            "org.aon.esolutions.build.tools.util"
+    	]
     }
 
 The following are the properties (none required - all default):
@@ -103,3 +106,4 @@ The following are the properties (none required - all default):
 	- Method - Java Method Level.  If any single method is below the threshold, build fails.
 - type - What Coverage type are you interested in?  Defaults to Line.  This is the list from JaCoCo: Class, Method, Complexity, Line, Branch, Instruction
 - threshold - What percentage coverage is required to pass the build.  Any coverage below this percentage will fail.
+- excludes - List of Regular Expression strings to exclude from failures.

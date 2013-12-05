@@ -29,6 +29,7 @@ class JaCoCoResultsPluginExtension {
     String aggregationLevel = CoverageLevels.SubProject.name();
     String type = CoverageTypes.Line.name();
     double threshold = 80.0;
+    List<String> excludes = [];
 
     CoverageLevels coverageLevel;
     CoverageTypes coverageType;

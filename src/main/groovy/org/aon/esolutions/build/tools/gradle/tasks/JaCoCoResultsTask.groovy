@@ -53,7 +53,7 @@ class JaCoCoResultsTask extends DefaultTask {
 
         // If we're at a SubProject or lower level check and throw exception
         if (CoverageLevels.Project != extension.getCoverageLevel()) {
-            def allViolatedCounters = allCounters.findAll { it.getPercentCoverage() < extension.getThreshold() }
+            def allViolatedCounters = allCounters.findAll { it.getPercentCoverage() < extension.getThreshold() && !it.isExcluded(extension.getExcludes()) }
             if (allViolatedCounters) {
                 String message = allViolatedCounters.collect {
                     extension.getCoverageLevel().name() + " " + it.getName() +" (" + it.getType()  + " Level): " + it.getPercentCoverage() + "%"
@@ -136,6 +136,12 @@ class JaCoCoResultsTask extends DefaultTask {
                 return 100;
 
             return (covered / (covered + missed)) * 100;
+        }
+
+        public boolean isExcluded(List<String> excludes) {
+            return excludes.find {
+                this.getName() =~ it
+            } != null;
         }
     }
 
