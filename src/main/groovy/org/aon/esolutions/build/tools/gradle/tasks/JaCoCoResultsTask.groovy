@@ -4,11 +4,10 @@ import groovy.transform.ToString
 import org.aon.esolutions.build.tools.gradle.JaCoCoResultsPluginExtension
 import org.aon.esolutions.build.tools.gradle.JaCoCoResultsPluginExtension.CoverageLevels
 import org.aon.esolutions.build.tools.gradle.JaCoCoResultsPluginExtension.CoverageTypes
-import org.codehaus.groovy.runtime.NullObject
+import org.aon.esolutions.build.tools.gradle.exception.ThresholdMissedException
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
-import org.gradle.tooling.BuildActionFailureException
 
 /**
  *
@@ -34,22 +33,29 @@ class JaCoCoResultsTask extends DefaultTask {
 
     @TaskAction
     void scanCoverageReports() {
-        println "Scanning $coverageReports";
         extension.verifyVariables();
         coverageReports.each this.&scanReport
 
-        println allCounters;
+        // If we're at a SubProject or lower level check and throw exception
+        if (CoverageLevels.Project != extension.getCoverageLevel()) {
+            def allViolatedCounters = allCounters.findAll { it.getPercentCoverage() < extension.getThreshold() }
+            if (allViolatedCounters) {
+                String message = allViolatedCounters.collect {
+                    extension.getCoverageLevel().name() + " " + it.getName() +" (" + it.getType()  + " Level): " + it.getPercentCoverage() + "%"
+                }.join("\n\t");
+
+                throw new ThresholdMissedException("The following coverage thresholds were not met: \n\t" + message);
+            }
+        }
     }
 
     void scanReport(File coverageReportFile) {
         if (coverageReportFile && coverageReportFile.exists()) {
             def coverageReport = xmlSlurper.parseText(coverageReportFile.text);
-            def coverageFindClosure = this.&isCounterApplicable
 
             if ([CoverageLevels.Project, CoverageLevels.SubProject].contains(extension.getCoverageLevel())) {
                 // Add Counter for Project / SubProject
-                def counter = coverageReport.counter.find this.&isCounterApplicable
-                allCounters << new Counter(counter, extension, "Project ${getProject().getName()}")
+                allCounters.addAll coverageReport.collect(this.&transformNodeToCounter).findAll { it != null }
             } else if (CoverageLevels.Package == extension.getCoverageLevel()) {
                 // Add Counters for Package
                 allCounters.addAll coverageReport.package.collect(this.&transformNodeToCounter).findAll { it != null }
@@ -85,6 +91,11 @@ class JaCoCoResultsTask extends DefaultTask {
         CoverageTypes type;
         String name;
 
+        public Counter(CoverageTypes type, String name) {
+            this.type = type;
+            this.name = name;
+        }
+
         public Counter(def counterReportNode, JaCoCoResultsPluginExtension extension, String name) {
             if (counterReportNode instanceof groovy.util.slurpersupport.Node) {
                 this.covered = counterReportNode.attributes()['covered'].toInteger()
@@ -98,6 +109,9 @@ class JaCoCoResultsTask extends DefaultTask {
         }
 
         public double getPercentCoverage() {
+            if (covered + missed == 0)
+                return 100;
+
             return (covered / (covered + missed)) * 100;
         }
     }

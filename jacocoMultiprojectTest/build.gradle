@@ -21,8 +21,8 @@ allprojects {
     }
 
     jacocoResults {
-        aggregationLevel = "SubProject"
+        aggregationLevel = "Project"
         type = "Instruction"
-        threshold = 80
+        threshold = 95
     }
 }
