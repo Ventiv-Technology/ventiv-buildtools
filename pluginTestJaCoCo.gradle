@@ -21,7 +21,7 @@ dependencies {
 }
 
 jacocoResults {
-    aggregationLevel = "SubProject" // Project, SubProject, Package, Class, Method
-    type = "Line"
+    aggregationLevel = "Project" // Project, SubProject, Package, Class, Method
+    type = "Instruction"
     threshold = 80
 }
