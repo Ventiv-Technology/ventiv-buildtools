@@ -1,0 +1,28 @@
+buildscript {
+    dependencies {
+        classpath fileTree(dir: '../build/libs', include: '*.jar')
+    }
+}
+
+apply plugin: 'jacoco-results'
+apply plugin: 'groovy'
+
+allprojects {
+    apply plugin: 'jacoco-results'
+    apply plugin: 'groovy'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        compile localGroovy()
+        compile gradleApi()
+    }
+
+    jacocoResults {
+        aggregationLevel = "SubProject"
+        type = "Instruction"
+        threshold = 80
+    }
+}
