@@ -30,7 +30,7 @@ public class PhantomJSExecutable extends Executable {
 	
 	public PhantomJSExecutable install(File dirToInstall) {
 		if (isInstalled())
-			return true;
+			return this;
 			
 		// Ensure we're not trying to install into a file
 		assert dirToInstall.isFile() == false;
