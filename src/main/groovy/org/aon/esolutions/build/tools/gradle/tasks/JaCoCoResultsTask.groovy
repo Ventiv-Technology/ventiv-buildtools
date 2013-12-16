@@ -60,6 +60,12 @@ class JaCoCoResultsTask extends DefaultTask {
                 }.join("\n\t");
 
                 throw new ThresholdMissedException("The following coverage thresholds were not met: \n\t" + message);
+            } else if (getProject().getLogger().isEnabled(extension.getResultsLogLevel())) {
+                String message = "All Coverage Levels: \n\t" + allCounters.collect {
+                    extension.getCoverageLevel().name() + " " + it.getName() +" (" + it.getType()  + " Level): " + it.getPercentCoverage() + "%"
+                }.join("\n\t");
+
+                getProject().getLogger().log(extension.getResultsLogLevel(), message);
             }
         }
     }

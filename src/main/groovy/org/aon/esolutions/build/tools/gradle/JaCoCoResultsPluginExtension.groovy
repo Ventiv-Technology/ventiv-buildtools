@@ -16,6 +16,7 @@
 package org.aon.esolutions.build.tools.gradle
 
 import org.gradle.api.Project
+import org.gradle.api.logging.LogLevel
 
 /**
  *
@@ -29,6 +30,7 @@ class JaCoCoResultsPluginExtension {
     String aggregationLevel = CoverageLevels.SubProject.name();
     String type = CoverageTypes.Line.name();
     double threshold = 80.0;
+    String logResultsLevel = "DEBUG";
     List<String> excludes = [];
 
     CoverageLevels coverageLevel;
@@ -36,6 +38,10 @@ class JaCoCoResultsPluginExtension {
 
     public JaCoCoResultsPluginExtension(Project project) {
         this.project = project;
+    }
+
+    public LogLevel getResultsLogLevel() {
+        return LogLevel.valueOf(logResultsLevel);
     }
 
     public verifyVariables() {
