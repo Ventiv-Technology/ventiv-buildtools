@@ -107,3 +107,22 @@ The following are the properties (none required - all default):
 - type - What Coverage type are you interested in?  Defaults to Line.  This is the list from JaCoCo: Class, Method, Complexity, Line, Branch, Instruction
 - threshold - What percentage coverage is required to pass the build.  Any coverage below this percentage will fail.
 - excludes - List of Regular Expression strings to exclude from failures.
+
+## Test Task Plugin ##
+
+Enable this plugin by: `apply plugin: 'test-task'`
+
+See examples in: `pluginTestTestTask.gradle`
+
+This plugin will look at all of your test classes that would normally run as part of 'gradle test' and separate them out by looking at the annotation @org.aon.esolutions.build.tools.test.GradleTestTask.  So, if you have the following as a test:
+
+    @GradleTestTask("QA")
+    class QATestSpec extends Specification { }
+
+Then you will automatically get a new task (as seen by 'gradle tasks'):
+
+    testQA - Runs the unit tests that are annotated with org.aon.esolutions.build.tools.test.GradleTestTask("QA")
+
+These tests will ONLY run when you execute the task 'testQA' and will be removed from the normal 'test' task.  The outputs will also have their own directories as to not collide.
+
+This is all accomplished by using Groovy (a natural dependency of Gradle) to 'compile' the test classes up to the 'CONVERSION' phase.  This way, Groovy just parses the classes into an AST, and doesn't try to resolve any classes (thus enabling it to read ANY source).  It will look for that particular annotation, and add it as an exclusion to the test task, and as an inclusion to a new Test task.
