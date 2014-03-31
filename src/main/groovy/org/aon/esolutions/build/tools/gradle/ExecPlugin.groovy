@@ -71,6 +71,7 @@ public class ExecPlugin implements Plugin<Project>  {
 		final String name;
 		File scriptLocation;
 		boolean global = false;
+        boolean npmPackage = true;
 		String[] scriptArguments
 		Map<String, String> environmentVariables = [:];
 		String standardOutLogLevel = LogLevel.NONE.toString();
@@ -102,16 +103,19 @@ public class ExecPlugin implements Plugin<Project>  {
 		
 		public int run(String...scriptArguments) {
 			// Ensure that this is installed
-			NpmPackage npmPackage = npm.listPackages(global).find { it.packageName == name };
-			if (npmPackage == null) {
-				npm.installPackage(name, global);
-				npmPackage = npm.listPackages(global).find { it.packageName == name };
-			}
+            NpmPackage npmPackage;
+            if (npmPackage) {
+                npmPackage = npm.listPackages(global).find { it.packageName == name };
+                if (npmPackage == null) {
+                    npm.installPackage(name, global);
+                    npmPackage = npm.listPackages(global).find { it.packageName == name };
+                }
+            }
 				
 			// Set the Environment Variables
 			nodeJs.addEnvironmentVariables(environmentVariables);
 			
-			File scriptToExecute = npmPackage.getPath();
+			File scriptToExecute = npmPackage?.getPath();
 			if (this.scriptLocation && this.scriptLocation.exists())
 				scriptToExecute = this.scriptLocation;
 

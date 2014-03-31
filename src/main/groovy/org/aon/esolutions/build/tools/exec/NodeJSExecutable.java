@@ -39,7 +39,9 @@ public class NodeJSExecutable extends Executable {
 	public int runScript(File appJsFile, String[] applicationParameters, Closure stdOutCallback, Closure stdErrCallback) {
 		List<String> arguments = new ArrayList<String>();
 		arguments.add(appJsFile.getAbsolutePath());
-		Collections.addAll(arguments, applicationParameters);
+
+        if (applicationParameters != null && applicationParameters.length > 0)
+		    Collections.addAll(arguments, applicationParameters);
 		
 		return run(arguments, stdOutCallback, stdErrCallback);
 	}
