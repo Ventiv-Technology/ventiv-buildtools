@@ -1,6 +1,6 @@
-# Aon Build Tools (Gradle) #
+# Ventiv Technolgy Build Tools (Gradle) #
 
-This project consists of several Plugins for Gradle, all were developed by Aon eSolutions in order to provide more efficient and readable build files.  Since there is no proprietary code in here, it has been released under the Apache-2.0 License for all to use.
+This project consists of several Plugins for Gradle, all were developed by Ventiv Technology in order to provide more efficient and readable build files.  Since there is no proprietary code in here, it has been released under the Apache-2.0 License for all to use.
 
 ## Exec Plugin ##
 
@@ -92,7 +92,7 @@ This plugin is to build on top of the JaCoCo plugin that gradle provides out of 
         type = "Instruction"
         threshold = 95
 		excludes = [
-            "org.aon.esolutions.build.tools.util"
+            "org.ventiv.tech.build.tools.util"
     	]
     }
 
@@ -114,14 +114,14 @@ Enable this plugin by: `apply plugin: 'test-task'`
 
 See examples in: `pluginTestTestTask.gradle`
 
-This plugin will look at all of your test classes that would normally run as part of 'gradle test' and separate them out by looking at the annotation @org.aon.esolutions.build.tools.test.GradleTestTask.  So, if you have the following as a test:
+This plugin will look at all of your test classes that would normally run as part of 'gradle test' and separate them out by looking at the annotation @org.ventiv.tech.build.tools.test.GradleTestTask.  So, if you have the following as a test:
 
     @GradleTestTask("QA")
     class QATestSpec extends Specification { }
 
 Then you will automatically get a new task (as seen by 'gradle tasks'):
 
-    testQA - Runs the unit tests that are annotated with org.aon.esolutions.build.tools.test.GradleTestTask("QA")
+    testQA - Runs the unit tests that are annotated with org.ventiv.tech.build.tools.test.GradleTestTask("QA")
 
 These tests will ONLY run when you execute the task 'testQA' and will be removed from the normal 'test' task.  The outputs will also have their own directories as to not collide.
 

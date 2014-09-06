@@ -26,6 +26,6 @@ jacocoResults {
     threshold = 0
     logResultsLevel = "LIFECYCLE"
     excludes = [
-            "org.aon.esolutions.build.tools.util"
+            "org.ventiv.tech.build.tools.util"
     ]
 }
