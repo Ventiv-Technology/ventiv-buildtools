@@ -14,6 +14,8 @@ This plugin enables easy execution of programs on the host OS.  It works by find
 - Npm - The NPM (Node Packaged Modules) executable.  Useful for installing Node.JS Scripts (NpmExecutable)
 - NodeJS - Node JS executable.  Very useful for compiling JavaScript tasks (NodeJSExecutable)
 - PhantomJS - A Headless browser. (PhantomJSExecutable)
+- Gulp - No special configuration needed, adds task `installGulp` (uses NPM and executes if you run a gulp task) and invisible `gulp_<TASK>` tasks that you can call and/or depend on. 
+Acts as a wrapper for gulp execution.  Ex: `./gradlew gulp_build` is equivalent to calling `gulp build`.  Your `gulpfile.js` must be present in the project root.
 
 Each of these executables extend the Executable class.  Please see the GroovyDoc for each of the classes for any methods you can call.  For example, on the Java executable, you can do either of the following:
 

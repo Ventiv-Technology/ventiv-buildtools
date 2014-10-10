@@ -13,8 +13,10 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.ventiv.tech.build.tools.gradle;
+package org.ventiv.tech.build.tools.gradle
 
+import org.gradle.api.GradleException
+import org.gradle.api.Task;
 import org.ventiv.tech.build.tools.exec.Executable
 import org.ventiv.tech.build.tools.exec.ExecutableFinder
 import org.ventiv.tech.build.tools.exec.JavaExecutable
@@ -26,10 +28,13 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.ventiv.tech.build.tools.gradle.tasks.GulpTask
 
 public class ExecPlugin implements Plugin<Project>  {
 	
 	public static final Logger log = LoggerFactory.getLogger(ExecPlugin.class)
+
+    public static final String GULP_TASK_PREFIX = 'gulp_'
 
 	@Override
 	public void apply(Project project) {
@@ -43,7 +48,35 @@ public class ExecPlugin implements Plugin<Project>  {
 		
 		def nodeJsContainer = project.container(NodeJSContainer)
 		project.extensions.nodeJsScripts = nodeJsContainer
+
+        addGulpTasks(project)
 	}
+
+    protected void addGulpTasks(Project project) {
+        project.task('installGulp') {
+            description 'install gulp locally using npm'
+
+            outputs.dir(project.file('node_modules/gulp'))
+
+            doLast {
+                logger.lifecycle('Installing gulp...')
+                project.npm.installPackage('gulp')
+
+                if (!project.file(GulpTask.GULP_PATH).isFile()) {
+                    throw new GradleException('gulp failed to install, try with npm manually and look for errors')
+                }
+            }
+        }
+
+        project.tasks.addRule("Pattern: ${GULP_TASK_PREFIX}<TASK>  to run `gulp <TASK>`") { String taskName ->
+            if (taskName.startsWith(GULP_TASK_PREFIX)) {
+                Task task = project.tasks.create(taskName, GulpTask.class)
+                task.dependsOn 'installGulp'
+                task.ext.args = [taskName - GULP_TASK_PREFIX]
+                return task
+            }
+        }
+    }
 	
 	public static class ExecutableContainer {
 		final String name;

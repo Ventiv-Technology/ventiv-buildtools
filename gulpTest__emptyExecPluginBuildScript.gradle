@@ -1,0 +1,9 @@
+buildscript {
+    dependencies {
+        classpath fileTree(dir: 'build/libs', include: '*.jar')
+    }
+}
+
+apply plugin: 'exec'
+
+task noop {}
