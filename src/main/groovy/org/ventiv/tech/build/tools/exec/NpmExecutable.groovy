@@ -65,6 +65,10 @@ public class NpmExecutable extends Executable {
 	}
 	
 	public String getInstalledPackageVersion(String packageName, boolean global = false) {
+        if (packageName.contains('@')) {
+            packageName = packageName.split('@')[0]
+        }
+
 		NpmPackage npmPackage = listPackages(global).find { it.packageName == packageName }
 		if (npmPackage) {
 			return npmPackage.versionNumber

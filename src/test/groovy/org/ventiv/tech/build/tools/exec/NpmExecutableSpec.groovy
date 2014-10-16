@@ -21,7 +21,10 @@ import spock.lang.Specification;
 
 public class NpmExecutableSpec extends Specification {
 	
-	def "check if karma is installed - if this fails, remove local node_modules"() {
+	def "remove any existing node modules"() {
+        setup:
+        new File('node_modules').deleteDir()
+
 		when:
 		NpmExecutable exec = new NpmExecutable();
 		
@@ -100,5 +103,27 @@ public class NpmExecutableSpec extends Specification {
 		nodeJs
 		nodeJs.getExecutableFile().getParentFile().isDirectory()
 	}
+
+    def "install a specific version and don't reinstall if already present"() {
+        when:
+        NpmExecutable exec = new NpmExecutable();
+
+        then:
+        exec.isInstalled();
+
+        when:
+        boolean success = exec.installPackage("karma-jasmine@2_0")  // v0.2.2 as of 2014-10-16
+        String version = exec.getInstalledPackageVersion("karma-jasmine")
+
+        then:
+        success
+        version.startsWith("0.2.")
+
+        when:
+        boolean reinstallSuccess = exec.installPackage("karma-jasmine@2_0")
+
+        then:
+        !reinstallSuccess
+    }
 
 }
