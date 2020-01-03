@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2014 Ventiv Technology
+/*
+ * Copyright (c) 2020 Ventiv Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -38,16 +38,16 @@ public class ExecPlugin implements Plugin<Project>  {
 
 	@Override
 	public void apply(Project project) {
-		project.extensions.java = new JavaExecutable();
-		project.extensions.npm = new NpmExecutable();
-		project.extensions.nodeJs = new NodeJSExecutable();
-		project.extensions.phantomJs = new PhantomJSExecutable();
+		project.extensions.add("javaExec", new JavaExecutable());
+		project.extensions.add("npmExec", new NpmExecutable());
+		project.extensions.add("nodeJsExec", new NodeJSExecutable());
+		project.extensions.add("phantomJsExec", new PhantomJSExecutable());
 		
 		def executableContainer = project.container(ExecutableContainer)
-        project.extensions.executables = executableContainer
+        project.extensions.add("executables", executableContainer)
 		
 		def nodeJsContainer = project.container(NodeJSContainer)
-		project.extensions.nodeJsScripts = nodeJsContainer
+		project.extensions.add("nodeJsScripts", nodeJsContainer)
 
         addGulpTasks(project)
 	}

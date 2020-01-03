@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Ventiv Technology
+ * Copyright (c) 2020 Ventiv Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -32,6 +32,7 @@ public @interface GradleTestTask {
     /**
      * The name of the task that this test should belong to, prepended by 'test'.  Example:
      * TestTask("QA") would create a gradle task 'testQA' with this test running in it.
+     * @return default will be null
      */
     String value() default "";
 }
